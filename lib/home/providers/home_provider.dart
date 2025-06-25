@@ -9,10 +9,12 @@ class HomeProvider with ChangeNotifier {
   final CartService _cartService = CartService();
 
   String _errorMessage = '';
+  final bool _isLoading = false;
   List<HomeModel> _services = [];
   List<HomeModel> _cartItems = [];
 
   String get errorMessage => _errorMessage;
+  bool get isLoading => _isLoading;
   List<HomeModel> get services => _services;
   List<HomeModel> get cartItems => _cartItems;
 

@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/auth/pages/login_or_register_screen.dart';
 import 'package:frontend/auth/providers/auth_provider.dart';
-import 'package:frontend/core/constants/app_storage_key.dart';
 import 'package:frontend/core/services/storage_manager.dart';
-import 'package:frontend/home/pages/home_screen.dart';
 import 'package:frontend/home/providers/home_provider.dart';
+import 'package:frontend/splash_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
 
@@ -20,8 +18,6 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final token = StorageManager.getStringValue(AppStorageKey.token);
-    final isAuthenticated = token != null && token.isNotEmpty;
     return Sizer(
       builder: (context, orientation, deviceType) {
         return MultiProvider(
@@ -30,7 +26,7 @@ class MyApp extends StatelessWidget {
             ChangeNotifierProvider(create: (context) => HomeProvider()),
           ],
           child: MaterialApp(
-            title: 'Flutter Demo',
+            title: 'Service Space',
             theme: ThemeData(
               colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
               elevatedButtonTheme: ElevatedButtonThemeData(
@@ -49,10 +45,7 @@ class MyApp extends StatelessWidget {
               ),
             ),
             debugShowCheckedModeBanner: false,
-            home:
-                isAuthenticated
-                    ? const HomeScreen()
-                    : const LoginOrRegisterScreen(),
+            home: SplashScreen(),
           ),
         );
       },

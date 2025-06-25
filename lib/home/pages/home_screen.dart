@@ -77,13 +77,21 @@ class _HomeScreenState extends State<HomeScreen> {
             return const Center(child: CircularProgressIndicator());
           }
 
-          return ListView.builder(
-            padding: const EdgeInsets.all(16.0),
-            itemCount: provider.services.length,
-            itemBuilder: (context, index) {
-              final service = provider.services[index];
-              return ServiceCard(service: service);
-            },
+          return RefreshIndicator(
+            onRefresh:
+                () =>
+                    Provider.of<HomeProvider>(
+                      context,
+                      listen: false,
+                    ).fetchServices(),
+            child: ListView.builder(
+              padding: const EdgeInsets.all(16.0),
+              itemCount: provider.services.length,
+              itemBuilder: (context, index) {
+                final service = provider.services[index];
+                return ServiceCard(service: service);
+              },
+            ),
           );
         },
       ),
@@ -113,29 +121,49 @@ class ServiceCard extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
+                service.image.isNotEmpty
+                    ? ClipRRect(
+                      borderRadius: BorderRadius.circular(8.0),
+                      child: Image.network(
+                        service.image,
+                        width: 50,
+                        height: 50,
+                        fit: BoxFit.cover,
+                      ),
+                    )
+                    : Container(width: 50, height: 50, color: Colors.grey),
                 Expanded(
                   child: Text(
                     service.name,
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.blue[900],
-                    ),
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
                   ),
                 ),
-                IconButton(
-                  icon: Icon(
-                    isInCart
-                        ? Icons.remove_shopping_cart
-                        : Icons.add_shopping_cart,
-                    color: isInCart ? Colors.red : Colors.green,
+                TextButton(
+                  style: TextButton.styleFrom(
+                    backgroundColor: isInCart ? Colors.red : Colors.blue,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16.0,
+                      vertical: 8.0,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                  ),
+                  child: Text(
+                    isInCart ? 'Remove' : 'Add to Cart',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   onPressed: () {
                     if (isInCart) {
                       provider.removeFromCart(service);
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          content: Text('${service.name} removed from cart'),
+                          content: Text(
+                            '${service.name} removed from your cart',
+                          ),
                           backgroundColor: Colors.red,
                         ),
                       );
@@ -143,7 +171,7 @@ class ServiceCard extends StatelessWidget {
                       provider.addToCart(service);
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          content: Text('${service.name} added to cart'),
+                          content: Text('${service.name} added to your cart'),
                           backgroundColor: Colors.green,
                         ),
                       );
@@ -152,30 +180,9 @@ class ServiceCard extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 8),
-            _buildInfoRow(Icons.build, 'Skill: ${service.skill}'),
-            const SizedBox(height: 4),
-            _buildInfoRow(Icons.location_on, 'Location: ${service.location}'),
-            const SizedBox(height: 4),
-            _buildInfoRow(Icons.phone, 'Contact: ${service.contact}'),
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildInfoRow(IconData icon, String text) {
-    return Row(
-      children: [
-        Icon(icon, size: 16, color: Colors.blue[700]),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Text(
-            text,
-            style: TextStyle(fontSize: 14, color: Colors.grey[700]),
-          ),
-        ),
-      ],
     );
   }
 }
