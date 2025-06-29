@@ -4,26 +4,28 @@ class HomeModel {
   final String skill;
   final String location;
   final String contact;
+  final String image;
+  final num price;
 
   HomeModel({
-    String? id,
-    String? name,
-    String? skill,
-    String? location,
-    String? contact,
-  }) : id = id ?? '',
-       name = name ?? '',
-       skill = skill ?? '',
-       location = location ?? '',
-       contact = contact ?? '';
+    this.id = '',
+    this.name = '',
+    this.skill = '',
+    this.location = '',
+    this.contact = '',
+    this.image = '',
+    this.price = 0,
+  });
 
   factory HomeModel.fromJson(Map<String, dynamic> json) {
     return HomeModel(
-      id: json['_id'] as String?,
-      name: json['name'] as String?,
-      skill: json['skill'] as String?,
-      location: json['location'] as String?,
-      contact: json['contact'] as String?,
+      id: json['_id'] ?? '',
+      name: json['name'] ?? '',
+      skill: json['skill'] ?? '',
+      location: json['location'] ?? '',
+      contact: json['contact'] ?? '',
+      price: json['price'] ?? 0,
+      image: json['image_url'] ?? '',
     );
   }
 

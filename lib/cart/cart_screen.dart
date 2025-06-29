@@ -181,6 +181,46 @@ class CartItemCard extends StatelessWidget {
             _buildInfoRow(Icons.location_on, 'Location: ${service.location}'),
             const SizedBox(height: 4),
             _buildInfoRow(Icons.phone, 'Contact: ${service.contact}'),
+            const SizedBox(height: 8),
+            // Quantity Control
+            Consumer<HomeProvider>(
+              builder: (context, provider, child) {
+                final quantity = provider.quantities[service] ?? 1;
+                return Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.remove),
+                          onPressed: () {
+                            if (quantity > 1) {
+                              provider.updateQuantity(service, quantity - 1);
+                            }
+                          },
+                          color: Colors.red,
+                        ),
+                        Text('$quantity', style: const TextStyle(fontSize: 16)),
+                        IconButton(
+                          icon: const Icon(Icons.add),
+                          onPressed: () {
+                            provider.updateQuantity(service, quantity + 1);
+                          },
+                          color: Colors.green,
+                        ),
+                      ],
+                    ),
+                    Text(
+                      '₹${service.price * quantity}', // Assuming price is in HomeModel
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
           ],
         ),
       ),

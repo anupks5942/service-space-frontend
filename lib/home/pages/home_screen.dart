@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/auth/pages/login_or_register_screen.dart';
-import 'package:frontend/cart/cart_screen.dart';
-import 'package:frontend/home/models/home_model.dart';
 import 'package:frontend/home/providers/home_provider.dart';
 import 'package:provider/provider.dart';
+import '../widgets/service_card.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -13,169 +11,243 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  final TextEditingController _searchController = TextEditingController();
+  final TextEditingController _locationController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<HomeProvider>(context, listen: false).fetchServices().then((
-        result,
-      ) {
+      Provider.of<HomeProvider>(context, listen: false).fetchServices().then((result) {
         result.match(
-          (err) => ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error: $err'), backgroundColor: Colors.red),
-          ),
+          (err) => ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Error: $err'), backgroundColor: Colors.red)),
           (services) => null,
         );
       });
     });
+    _searchController.addListener(() {
+      Provider.of<HomeProvider>(context, listen: false).setSearchQuery(_searchController.text);
+    });
+    _locationController.addListener(() {
+      Provider.of<HomeProvider>(context, listen: false).notifyListeners();
+    });
+  }
+
+  Future<void> _refreshServices() async {
+    final provider = Provider.of<HomeProvider>(context, listen: false);
+    final result = await provider.fetchServices();
+    result.match(
+      (err) => ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error: $err'), backgroundColor: Colors.red)),
+      (services) => null,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Our Services'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.shopping_cart),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const CartScreen()),
-              );
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.logout, color: Colors.red),
-            onPressed: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => LoginOrRegisterScreen(),
-                ),
-              );
-            },
-          ),
-        ],
-      ),
-      body: Consumer<HomeProvider>(
-        builder: (context, provider, child) {
-          if (provider.errorMessage.isNotEmpty) {
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Text(
-                  provider.errorMessage,
-                  style: TextStyle(color: Colors.red, fontSize: 16),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-            );
-          }
-
-          if (provider.services.isEmpty) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          return ListView.builder(
-            padding: const EdgeInsets.all(16.0),
-            itemCount: provider.services.length,
-            itemBuilder: (context, index) {
-              final service = provider.services[index];
-              return ServiceCard(service: service);
-            },
-          );
-        },
-      ),
-    );
-  }
-}
-
-class ServiceCard extends StatelessWidget {
-  final HomeModel service;
-
-  const ServiceCard({super.key, required this.service});
-
-  @override
-  Widget build(BuildContext context) {
-    final provider = Provider.of<HomeProvider>(context);
-    final isInCart = provider.isInCart(service);
-
-    return Card(
-      elevation: 2,
-      margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
+      appBar: AppBar(title: const Text('Explore Your Service')),
+      body: RefreshIndicator(
+        onRefresh: _refreshServices,
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Text(
-                    service.name,
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.blue[900],
-                    ),
-                  ),
-                ),
-                IconButton(
-                  icon: Icon(
-                    isInCart
-                        ? Icons.remove_shopping_cart
-                        : Icons.add_shopping_cart,
-                    color: isInCart ? Colors.red : Colors.green,
-                  ),
-                  onPressed: () {
-                    if (isInCart) {
-                      provider.removeFromCart(service);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('${service.name} removed from cart'),
-                          backgroundColor: Colors.red,
+            Padding(
+              padding: const EdgeInsets.all(8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        // flex: 3,
+                        child: TextField(
+                          controller: _searchController,
+                          decoration: InputDecoration(
+                            hintText: 'Services',
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(25.0)),
+                            filled: true,
+                            fillColor: Colors.grey[200],
+                          ),
                         ),
-                      );
-                    } else {
-                      provider.addToCart(service);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('${service.name} added to cart'),
-                          backgroundColor: Colors.green,
+                      ),
+                      const SizedBox(width: 10),
+                      // Location Dropdown
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () {
+                            FocusScope.of(context).unfocus();
+                          },
+                          child: Autocomplete<String>(
+                            optionsBuilder: (TextEditingValue textEditingValue) {
+                              if (textEditingValue.text == '') {
+                                return Provider.of<HomeProvider>(context, listen: false).uniqueLocations.toList();
+                              }
+                              return Provider.of<HomeProvider>(context, listen: false).uniqueLocations.where((
+                                String option,
+                              ) {
+                                return option.toLowerCase().contains(textEditingValue.text.toLowerCase());
+                              });
+                            },
+                            onSelected: (String selection) {
+                              Provider.of<HomeProvider>(context, listen: false).setSelectedLocation(selection);
+                              _locationController.text = selection;
+                              FocusScope.of(context).unfocus();
+                            },
+                            optionsViewBuilder: (
+                              BuildContext context,
+                              AutocompleteOnSelected<String> onSelected,
+                              Iterable<String> options,
+                            ) {
+                              return Align(
+                                alignment: Alignment.topLeft,
+                                child: Material(
+                                  elevation: 4.0,
+                                  child: SizedBox(
+                                    height: 200.0,
+                                    child: ListView.builder(
+                                      padding: EdgeInsets.zero,
+                                      itemCount: options.length,
+                                      itemBuilder: (BuildContext context, int index) {
+                                        final String option = options.elementAt(index);
+                                        return InkWell(
+                                          onTap: () {
+                                            onSelected(option);
+                                          },
+                                          child: Padding(padding: const EdgeInsets.all(16.0), child: Text(option)),
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                            fieldViewBuilder: (
+                              BuildContext context,
+                              TextEditingController fieldTextEditingController,
+                              FocusNode fieldFocusNode,
+                              VoidCallback onFieldSubmitted,
+                            ) {
+                              // Initialize with current value
+                              fieldTextEditingController.text = _locationController.text;
+                              // Sync _locationController to fieldTextEditingController
+                              void syncController() {
+                                if (fieldTextEditingController.text != _locationController.text) {
+                                  fieldTextEditingController.text = _locationController.text;
+                                }
+                              }
+
+                              _locationController.addListener(syncController);
+                              // Clean up listener when field is disposed
+                              fieldFocusNode.addListener(() {
+                                if (!fieldFocusNode.hasFocus) {
+                                  if (_locationController.text.isEmpty) {
+                                    Provider.of<HomeProvider>(context, listen: false).setSelectedLocation(null);
+                                  }
+                                }
+                              });
+                              return TextField(
+                                controller: fieldTextEditingController,
+                                focusNode: fieldFocusNode,
+                                decoration: InputDecoration(
+                                  hintText: 'Location',
+                                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(25.0)),
+                                  filled: true,
+                                  fillColor: Colors.grey[200],
+                                ),
+                                onSubmitted: (_) {
+                                  onFieldSubmitted();
+                                  FocusScope.of(context).unfocus();
+                                },
+                                onChanged: (value) {
+                                  _locationController.removeListener(syncController);
+                                  _locationController.text = value;
+                                  _locationController.addListener(syncController);
+                                },
+                              );
+                            },
+                          ),
                         ),
-                      );
-                    }
-                  },
-                ),
-              ],
+                      ),
+                    ],
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      _searchController.clear();
+                      _locationController.clear();
+                      Provider.of<HomeProvider>(context, listen: false).resetFilters();
+                    },
+                    child: const Text('Clear Filters'),
+                  ),
+                ],
+              ),
             ),
-            const SizedBox(height: 8),
-            _buildInfoRow(Icons.build, 'Skill: ${service.skill}'),
-            const SizedBox(height: 4),
-            _buildInfoRow(Icons.location_on, 'Location: ${service.location}'),
-            const SizedBox(height: 4),
-            _buildInfoRow(Icons.phone, 'Contact: ${service.contact}'),
+            Expanded(
+              child: Consumer<HomeProvider>(
+                builder: (context, provider, child) {
+                  Widget content;
+                  if (provider.errorMessage.isNotEmpty) {
+                    content = SingleChildScrollView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      child: SizedBox(
+                        height: MediaQuery.of(context).size.height - 200, // Ensure scrollable area
+                        child: Center(
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Text(
+                              provider.errorMessage,
+                              style: const TextStyle(color: Colors.red, fontSize: 16),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  } else if (provider.isLoading) {
+                    content = const SingleChildScrollView(
+                      physics: AlwaysScrollableScrollPhysics(),
+                      child: SizedBox(
+                        height: 400, // Ensure scrollable area
+                        child: Center(child: CircularProgressIndicator()),
+                      ),
+                    );
+                  } else {
+                    final filteredServices =
+                        provider.services.where((service) {
+                          final matchesSearch =
+                              provider.searchQuery.isEmpty ||
+                              service.name.toLowerCase().contains(provider.searchQuery.toLowerCase()) || service.skill.toLowerCase().contains(provider.searchQuery.toLowerCase());
+                          final matchesLocation =
+                              provider.selectedLocation == null || service.location == provider.selectedLocation;
+                          return matchesSearch && matchesLocation;
+                        }).toList();
+
+                    content = Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: ListView.builder(
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            padding: const EdgeInsets.all(16.0),
+                            itemCount: filteredServices.length,
+                            itemBuilder: (context, index) {
+                              final service = filteredServices[index];
+                              return ServiceCard(service: service);
+                            },
+                          ),
+                        ),
+                      ],
+                    );
+                  }
+                  return content;
+                },
+              ),
+            ),
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildInfoRow(IconData icon, String text) {
-    return Row(
-      children: [
-        Icon(icon, size: 16, color: Colors.blue[700]),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Text(
-            text,
-            style: TextStyle(fontSize: 14, color: Colors.grey[700]),
-          ),
-        ),
-      ],
     );
   }
 }

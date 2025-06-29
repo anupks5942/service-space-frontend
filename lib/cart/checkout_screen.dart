@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/home/pages/home_screen.dart';
+import 'package:frontend/bottom_navbar.dart';
 import 'package:frontend/home/providers/home_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -111,7 +111,7 @@ class CheckoutScreen extends StatelessWidget {
                     Navigator.pushAndRemoveUntil(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const HomeScreen(),
+                        builder: (context) => const BottomNavbar(),
                       ),
                       (route) => false,
                     );

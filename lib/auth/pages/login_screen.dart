@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/bottom_navbar.dart';
 import 'package:frontend/home/pages/home_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
@@ -17,8 +18,6 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  // final _emailController = TextEditingController(text: 'anupsoni404@gmail.com');
-  // final _passwordController = TextEditingController(text: 'Anup123');
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
@@ -48,7 +47,7 @@ class _LoginScreenState extends State<LoginScreen> {
           // context.go(AppRoutes.home);
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => const HomeScreen()),
+            MaterialPageRoute(builder: (context) => const BottomNavbar()),
           );
         },
       );
