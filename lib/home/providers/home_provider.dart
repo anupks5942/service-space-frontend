@@ -9,7 +9,7 @@ class HomeProvider with ChangeNotifier {
   final CartService _cartService = CartService();
 
   String _errorMessage = '';
-  final bool _isLoading = false;
+  bool _isLoading = false;
   List<HomeModel> _services = [];
   List<HomeModel> _cartItems = [];
 
@@ -24,6 +24,7 @@ class HomeProvider with ChangeNotifier {
 
   Future<Either<String, List<HomeModel>>> fetchServices() async {
     _errorMessage = '';
+    _isLoading = true;
     notifyListeners();
 
     final result = await _homeService.getServices();
@@ -33,6 +34,7 @@ class HomeProvider with ChangeNotifier {
       (services) => _services = services,
     );
 
+    _isLoading = false;
     notifyListeners();
     return result;
   }

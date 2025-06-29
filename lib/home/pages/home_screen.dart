@@ -73,7 +73,7 @@ class _HomeScreenState extends State<HomeScreen> {
             );
           }
 
-          if (provider.services.isEmpty) {
+          if (provider.isLoading) {
             return const Center(child: CircularProgressIndicator());
           }
 
@@ -121,60 +121,36 @@ class ServiceCard extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                service.image.isNotEmpty
-                    ? ClipRRect(
-                      borderRadius: BorderRadius.circular(8.0),
-                      child: Image.network(
-                        service.image,
-                        width: 50,
-                        height: 50,
-                        fit: BoxFit.cover,
-                      ),
-                    )
-                    : Container(width: 50, height: 50, color: Colors.grey),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(8.0),
+                  child: Image.network(
+                    service.image,
+                    width: 50,
+                    height: 50,
+                    fit: BoxFit.cover,
+                    errorBuilder:
+                        (context, error, stackTrace) => Icon(Icons.error),
+                  ),
+                ),
+                const SizedBox(width: 8.0),
                 Expanded(
                   child: Text(
                     service.name,
                     style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
                   ),
                 ),
-                TextButton(
-                  style: TextButton.styleFrom(
-                    backgroundColor: isInCart ? Colors.red : Colors.blue,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16.0,
-                      vertical: 8.0,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                  ),
-                  child: Text(
-                    isInCart ? 'Remove' : 'Add to Cart',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
+                IconButton(
+                  icon: Icon(
+                    isInCart
+                        ? Icons.remove_shopping_cart
+                        : Icons.add_shopping_cart,
+                    color: isInCart ? Colors.red : Colors.green,
                   ),
                   onPressed: () {
                     if (isInCart) {
                       provider.removeFromCart(service);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            '${service.name} removed from your cart',
-                          ),
-                          backgroundColor: Colors.red,
-                        ),
-                      );
                     } else {
                       provider.addToCart(service);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('${service.name} added to your cart'),
-                          backgroundColor: Colors.green,
-                        ),
-                      );
                     }
                   },
                 ),
