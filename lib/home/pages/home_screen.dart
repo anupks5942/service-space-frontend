@@ -18,17 +18,22 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<HomeProvider>(context, listen: false).fetchServices().then((result) {
+      Provider.of<HomeProvider>(context, listen: false).fetchServices().then((
+        result,
+      ) {
         result.match(
-          (err) => ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text('Error: $err'), backgroundColor: Colors.red)),
+          (err) => ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error: $err'), backgroundColor: Colors.red),
+          ),
           (services) => null,
         );
       });
     });
     _searchController.addListener(() {
-      Provider.of<HomeProvider>(context, listen: false).setSearchQuery(_searchController.text);
+      Provider.of<HomeProvider>(
+        context,
+        listen: false,
+      ).setSearchQuery(_searchController.text);
     });
     _locationController.addListener(() {
       Provider.of<HomeProvider>(context, listen: false).notifyListeners();
@@ -39,9 +44,9 @@ class _HomeScreenState extends State<HomeScreen> {
     final provider = Provider.of<HomeProvider>(context, listen: false);
     final result = await provider.fetchServices();
     result.match(
-      (err) => ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Error: $err'), backgroundColor: Colors.red)),
+      (err) => ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $err'), backgroundColor: Colors.red),
+      ),
       (services) => null,
     );
   }
@@ -67,7 +72,9 @@ class _HomeScreenState extends State<HomeScreen> {
                           controller: _searchController,
                           decoration: InputDecoration(
                             hintText: 'Services',
-                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(25.0)),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(25.0),
+                            ),
                             filled: true,
                             fillColor: Colors.grey[200],
                           ),
@@ -81,18 +88,29 @@ class _HomeScreenState extends State<HomeScreen> {
                             FocusScope.of(context).unfocus();
                           },
                           child: Autocomplete<String>(
-                            optionsBuilder: (TextEditingValue textEditingValue) {
+                            optionsBuilder: (
+                              TextEditingValue textEditingValue,
+                            ) {
                               if (textEditingValue.text == '') {
-                                return Provider.of<HomeProvider>(context, listen: false).uniqueLocations.toList();
+                                return Provider.of<HomeProvider>(
+                                  context,
+                                  listen: false,
+                                ).uniqueLocations.toList();
                               }
-                              return Provider.of<HomeProvider>(context, listen: false).uniqueLocations.where((
-                                String option,
-                              ) {
-                                return option.toLowerCase().contains(textEditingValue.text.toLowerCase());
+                              return Provider.of<HomeProvider>(
+                                context,
+                                listen: false,
+                              ).uniqueLocations.where((String option) {
+                                return option.toLowerCase().contains(
+                                  textEditingValue.text.toLowerCase(),
+                                );
                               });
                             },
                             onSelected: (String selection) {
-                              Provider.of<HomeProvider>(context, listen: false).setSelectedLocation(selection);
+                              Provider.of<HomeProvider>(
+                                context,
+                                listen: false,
+                              ).setSelectedLocation(selection);
                               _locationController.text = selection;
                               FocusScope.of(context).unfocus();
                             },
@@ -110,13 +128,21 @@ class _HomeScreenState extends State<HomeScreen> {
                                     child: ListView.builder(
                                       padding: EdgeInsets.zero,
                                       itemCount: options.length,
-                                      itemBuilder: (BuildContext context, int index) {
-                                        final String option = options.elementAt(index);
+                                      itemBuilder: (
+                                        BuildContext context,
+                                        int index,
+                                      ) {
+                                        final String option = options.elementAt(
+                                          index,
+                                        );
                                         return InkWell(
                                           onTap: () {
                                             onSelected(option);
                                           },
-                                          child: Padding(padding: const EdgeInsets.all(16.0), child: Text(option)),
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(16.0),
+                                            child: Text(option),
+                                          ),
                                         );
                                       },
                                     ),
@@ -131,11 +157,14 @@ class _HomeScreenState extends State<HomeScreen> {
                               VoidCallback onFieldSubmitted,
                             ) {
                               // Initialize with current value
-                              fieldTextEditingController.text = _locationController.text;
+                              fieldTextEditingController.text =
+                                  _locationController.text;
                               // Sync _locationController to fieldTextEditingController
                               void syncController() {
-                                if (fieldTextEditingController.text != _locationController.text) {
-                                  fieldTextEditingController.text = _locationController.text;
+                                if (fieldTextEditingController.text !=
+                                    _locationController.text) {
+                                  fieldTextEditingController.text =
+                                      _locationController.text;
                                 }
                               }
 
@@ -144,7 +173,10 @@ class _HomeScreenState extends State<HomeScreen> {
                               fieldFocusNode.addListener(() {
                                 if (!fieldFocusNode.hasFocus) {
                                   if (_locationController.text.isEmpty) {
-                                    Provider.of<HomeProvider>(context, listen: false).setSelectedLocation(null);
+                                    Provider.of<HomeProvider>(
+                                      context,
+                                      listen: false,
+                                    ).setSelectedLocation(null);
                                   }
                                 }
                               });
@@ -153,7 +185,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                 focusNode: fieldFocusNode,
                                 decoration: InputDecoration(
                                   hintText: 'Location',
-                                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(25.0)),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(25.0),
+                                  ),
                                   filled: true,
                                   fillColor: Colors.grey[200],
                                 ),
@@ -162,9 +196,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                   FocusScope.of(context).unfocus();
                                 },
                                 onChanged: (value) {
-                                  _locationController.removeListener(syncController);
+                                  _locationController.removeListener(
+                                    syncController,
+                                  );
                                   _locationController.text = value;
-                                  _locationController.addListener(syncController);
+                                  _locationController.addListener(
+                                    syncController,
+                                  );
                                 },
                               );
                             },
@@ -177,7 +215,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     onPressed: () {
                       _searchController.clear();
                       _locationController.clear();
-                      Provider.of<HomeProvider>(context, listen: false).resetFilters();
+                      Provider.of<HomeProvider>(
+                        context,
+                        listen: false,
+                      ).resetFilters();
                     },
                     child: const Text('Clear Filters'),
                   ),
@@ -192,13 +233,18 @@ class _HomeScreenState extends State<HomeScreen> {
                     content = SingleChildScrollView(
                       physics: const AlwaysScrollableScrollPhysics(),
                       child: SizedBox(
-                        height: MediaQuery.of(context).size.height - 200, // Ensure scrollable area
+                        height:
+                            MediaQuery.of(context).size.height -
+                            200, // Ensure scrollable area
                         child: Center(
                           child: Padding(
                             padding: const EdgeInsets.all(16.0),
                             child: Text(
                               provider.errorMessage,
-                              style: const TextStyle(color: Colors.red, fontSize: 16),
+                              style: const TextStyle(
+                                color: Colors.red,
+                                fontSize: 16,
+                              ),
                               textAlign: TextAlign.center,
                             ),
                           ),
@@ -218,9 +264,15 @@ class _HomeScreenState extends State<HomeScreen> {
                         provider.services.where((service) {
                           final matchesSearch =
                               provider.searchQuery.isEmpty ||
-                              service.name.toLowerCase().contains(provider.searchQuery.toLowerCase()) || service.skill.toLowerCase().contains(provider.searchQuery.toLowerCase());
+                              service.name.toLowerCase().contains(
+                                provider.searchQuery.toLowerCase(),
+                              ) ||
+                              service.skill.toLowerCase().contains(
+                                provider.searchQuery.toLowerCase(),
+                              );
                           final matchesLocation =
-                              provider.selectedLocation == null || service.location == provider.selectedLocation;
+                              provider.selectedLocation == null ||
+                              service.location == provider.selectedLocation;
                           return matchesSearch && matchesLocation;
                         }).toList();
 

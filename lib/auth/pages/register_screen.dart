@@ -6,6 +6,7 @@ import 'package:sizer/sizer.dart';
 import '../../../core/widgets/custom_snackbar.dart';
 import '../../../core/services/validation_service.dart';
 import '../../../core/widgets/custom_textfield.dart';
+import '../../bottom_navbar.dart';
 import '../providers/auth_provider.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -45,10 +46,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
             message: 'Welcome, $name',
             type: SnackBarType.success,
           );
-          // context.go(AppRoutes.home);
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => const HomeScreen()),
+            MaterialPageRoute(builder: (context) => const BottomNavbar()),
           );
         },
       );

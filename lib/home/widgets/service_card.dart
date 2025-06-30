@@ -16,7 +16,12 @@ class ServiceCard extends StatelessWidget {
 
     return InkWell(
       onTap: () {
-        Navigator.push(context, MaterialPageRoute(builder: (context) => ServiceDetailsScreen(homeModel: service)));
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ServiceDetailsScreen(homeModel: service),
+          ),
+        );
       },
       child: Card(
         elevation: 2,
@@ -33,7 +38,9 @@ class ServiceCard extends StatelessWidget {
                   width: 80,
                   height: 80,
                   fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) => Container(color: Colors.grey),
+                  errorBuilder:
+                      (context, error, stackTrace) =>
+                          Container(color: Colors.grey),
                 ),
               ),
               const SizedBox(height: 4),
@@ -42,15 +49,29 @@ class ServiceCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(service.name, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                    Text(
+                      service.name,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     Text(
                       service.skill,
-                      style: const TextStyle(fontSize: 12, color: Colors.grey, fontWeight: FontWeight.bold),
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       '₹${service.price}',
-                      style: const TextStyle(fontSize: 16, color: Colors.green, fontWeight: FontWeight.bold),
+                      style: const TextStyle(
+                        fontSize: 16,
+                        color: Colors.green,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ],
                 ),
@@ -61,18 +82,26 @@ class ServiceCard extends StatelessWidget {
                     provider.addToCart(service);
                     ScaffoldMessenger.of(context).removeCurrentSnackBar();
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('${service.name} added to cart'), backgroundColor: Colors.green),
+                      SnackBar(
+                        content: Text('${service.name} added to cart'),
+                        backgroundColor: Colors.green,
+                      ),
                     );
                   } else {
                     provider.removeFromCart(service);
                     ScaffoldMessenger.of(context).removeCurrentSnackBar();
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('${service.name} removed from cart'), backgroundColor: Colors.red),
+                      SnackBar(
+                        content: Text('${service.name} removed from cart'),
+                        backgroundColor: Colors.red,
+                      ),
                     );
                   }
                 },
                 icon: Icon(
-                  isInCart ? Icons.remove_shopping_cart : Icons.add_shopping_cart,
+                  isInCart
+                      ? Icons.remove_shopping_cart
+                      : Icons.add_shopping_cart,
                   color: isInCart ? Colors.red : Colors.blue,
                 ),
               ),

@@ -48,7 +48,7 @@ class AuthService {
     }
   }
 
-  Future<Either<String, String>> register({
+  Future<Either<String, AuthModel>> register({
     required String name,
     required String email,
     required String password,
@@ -60,7 +60,17 @@ class AuthService {
       );
 
       if (response.statusCode == 201) {
-        return Right(response.data['message'] ?? 'Registration successful');
+        final authModel = AuthModel.fromJson(response.data);
+
+        final user = jsonEncode(response.data['user']);
+
+        StorageManager.setStringValue(key: AppStorageKey.user, value: user);
+        StorageManager.setStringValue(
+          key: AppStorageKey.token,
+          value: authModel.token,
+        );
+
+        return Right(authModel);
       } else {
         final message = DioService.getErrorMessageFromStatusCode(
           response.statusCode,
